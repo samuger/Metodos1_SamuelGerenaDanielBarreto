@@ -1,0 +1,337 @@
+#ejercicio 2.01
+def factorial(numero):
+    fact=1
+    if numero==0:
+        fact
+    else:
+        while numero!=0:
+            fact*=numero
+            numero-=1
+    return fact
+factorial(100)
+
+# ejercicio 2.02
+import urllib.request
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import rc
+url = 'https://raw.githubusercontent.com/asegura4488/Database/main/MetodosComputacionalesReforma/EstrellaEspectro.txt'
+filename = 'EstrellaEspectro.txt'
+urllib.request.urlretrieve(url, filename)
+data = np.loadtxt(filename)
+plt.plot(data[:,0],data[:,1])
+datos1=data[:,1]
+
+def maximos(datos1):
+    maxi=np.array([])
+    i=1
+    while i<(len(datos1)-1):
+        if datos1[i]>datos1[i-1] and datos1[i]>datos1[i+1]:
+            num=datos1[i]
+            maxi=np.append(maxi,num)
+            plt.plot(datos2[i],datos1[i],marker="o",color="red")
+            i+=1  
+        else:
+            i+=1
+    return maxi
+ccc=maximos(datos1)
+print(ccc)
+
+# ejercicio 2.03
+from numpy.core.fromnumeric import size
+import numpy as np
+import matplotlib.pyplot as plt
+
+def fib(nveces):
+  nveces+=1
+  a=0
+  b=1
+  c=0
+  M= np.zeros((21,2))
+  for i in range(nveces):
+    b=a+b
+    a=c
+    c=b
+    M[i,0]=a
+    M[i,1]=i
+    B= M[:,0]
+    C= M[:,1]
+  plt.plot(C,B,color='blue',marker='o',linestyle='solid')
+  fig2 = plt.figure(figsize=(5,5))
+  ax = fig2.add_subplot(111,projection='polar')
+  ax.plot(C,B)
+def aureo(nveces):
+  n_oro=1,618034
+  nveces+=1
+  a=0
+  b=1
+  c=0
+  M= np.zeros((21,2))
+  for i in range(nveces):
+    b=a+b
+    a=c
+    c=b
+    M[i,0]=a/b+1
+    M[i,1]=i
+    B= M[:,0]
+    C= M[:,1]
+    plt.plot(C,B,color='blue',marker='o',linestyle='solid')
+    plt.axhline(y=1.618034,color='r')
+fib(20)
+aureo(20)
+
+from matplotlib import rc
+rc('animation', html='jshtml')
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as anim
+from tqdm import tqdm
+from time import sleep
+'las particulas tienen misma masa y radio'
+class Particle:
+    
+    def __init__(self,r0,v0,a0,t,m=1,radius=2,Id=0):
+        
+        self.dt = t[1] - t[0]
+        
+        self.r = r0
+        self.v = v0
+        self.a = a0
+        
+        self.R = np.zeros((len(t),len(r0)))
+        self.V = np.zeros_like(self.R)
+        self.A = np.zeros_like(self.R)
+        
+        self.radius = radius
+        self.F = np.zeros_like(self.a)
+        self.m = m
+    
+    def Evolution(self,i,p):
+        
+        d = np.linalg.norm( p.r - self.r)
+        n = np.zeros_like(self.F)
+        
+        if d < self.radius+p.radius: 
+            self.F[0] = 10*(-d)**3 * ((p.r[0] - self.r[0])/d)
+            self.a[0] = self.F[0]/self.m
+            self.F[1] = 10*(-d)**3 * ((p.r[1] - self.r[1])/d)
+            self.a[1] = self.F[1]/self.m
+        else:
+            self.F = n
+            
+        self.SetPosition(i)
+        self.SetVelocity(i)
+        
+        self.r += self.dt*self.v
+        self.v += (self.dt*self.a)
+        
+        self.F[:] = 0.
+        
+    def SetPosition(self,i):
+        self.R[i] = self.r
+        
+    def GetPosition(self,scale=1):
+        return self.R[::scale]
+    
+    def SetVelocity(self,i):
+        self.V[i] = self.v
+
+    def GetVelocity(self,scale=1):
+        return self.V[::scale]
+          
+        
+    def CheckLimits(self,Limits):
+        
+        for i in range(2):
+        
+            if self.r[i] + self.radius > Limits[i][1] and self.v[i] > 0.:
+                self.v[i] = -1.0*self.v[i]
+            if self.r[i] - self.radius < Limits[i][0] and self.v[i] < 0.:
+                self.v[i] = -1.0*self.v[i]
+dt = 0.05
+tmax = 10
+t = np.arange(0.,tmax,dt)
+r0 = np.array([0.1,0.1])
+v0 = np.array([1.,5.])
+a0 = np.array([0.,0])
+p1 = Particle(r0,v0,a0,t)
+
+r1 = np.array([0.,-1.5])
+v1 = np.array([1.,5.])
+a1 = np.array([0.,0])
+p2 = Particle(r1,v1,a1,t)
+
+def RunSimulation1(t,Wall):
+    
+    r0 = np.array([-15.,1.])
+    v0 = np.array([10.,0.])
+    a0 = np.array([0.,0])
+
+
+    p1 = Particle(r0,v0,a0,t)
+
+    r2 = np.array([0.,1.5])
+    v2 = np.array([0.,0.])
+    a2 = np.array([0.,0.])
+    
+    p2 = Particle(r1,v1,a1,t)
+    
+    
+    Wall_ = Wall.copy()
+    
+    
+    for it in tqdm(range(len(t)), desc='Running simulation', unit=' Steps'):
+        sleep(0.0001)
+        p1.Evolution(it,p2)
+        p1.CheckLimits(Wall_)
+        p2.Evolution(it,p1)
+        p2.CheckLimits(Wall_)
+        
+    
+    return [p1,p2]
+Limits = np.array([[-20.,20.],[-20.,20.]])
+
+dt = 0.05
+tmax = 10
+t = np.arange(0.,tmax,dt)
+Particles = RunSimulation1(t,Limits)
+scale = 1
+t = t[::scale]
+
+fig = plt.figure(figsize=(5,5))
+ax = fig.add_subplot(111)
+
+def init():
+    ax.set_xlim(Limits[0][0],Limits[0][1])
+    ax.set_ylim(Limits[1][0],Limits[1][1])
+    
+def Update(i):
+    
+    ax.clear()
+    init()
+    ax.set_title(r'$ t=%.2f \ s$' %(t[i]))
+    
+    for p in Particles:
+    
+        x = p.GetPosition(scale)[i,0]
+        y = p.GetPosition(scale)[i,1]
+        vx = p.GetVelocity(scale)[i,0]
+        vy = p.GetVelocity(scale)[i,1]
+    
+        circle = plt.Circle((x,y),p.radius, fill=True, color='k')
+        ax.add_patch(circle)
+    
+        ax.arrow(x,y,vx,vy,color='r',head_width=0.2,length_includes_head=True)
+    
+    
+    
+Animation = anim.FuncAnimation(fig,Update,frames=len(t),init_func=init)
+Animation
+
+# ejercicio 3.26
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import rc
+x = np.linspace(0,2*np.pi,50)
+h = x[1] - x[0]
+def Function(x):
+    return np.sin(x)
+
+def CentralDoubleDerivative(f,x,h):
+    d = 0.
+    if h != 0:
+        d = (f(x+h) - 2*f(x) + f(x-h))/(h**2)
+    return d
+CDoubleDerivative = CentralDoubleDerivative(Function,x,h)
+
+plt.scatter(x,CDoubleDerivative)
+
+# Seccion 3.10 ejercicio 3
+def function(x):
+    return (3*(x**5))+(5*(x**4))-(x**3)
+x=np.linspace(-2,1,100)
+x2=function(x)
+
+def Derivative(f,x,h=1e-15):
+    return (f(x+h)-f(x-h))/(2*h)
+
+def GetNewtonRaphson(f,df,xn,itmax = 100, precision=1e-15):
+    error = 1
+    it = 0
+    while error > precision and it <= itmax:
+        try:
+            xn1 = xn - f(xn)/df(f,xn)
+            error = np.abs(f(xn)/df(f,xn))
+        except ZeroDivisionError:
+            print('Division por cero')
+        it += 1
+        xn = xn1
+    if it == itmax:
+        False
+    else:
+        return xn
+def GetAllRoots(x,tolerancia=5):
+    Roots = np.array([])
+    for i in x:  
+        root = GetNewtonRaphson(function,Derivative,i)
+        if root != False:            
+            croot = np.round(root, tolerancia)           
+            if croot not in Roots:
+                Roots = np.append(Roots,croot)             
+    Roots.sort()     
+    
+    return Roots
+raiz=GetAllRoots(x2)
+print(raiz)
+plt.plot(x,x2)
+plt.axhline(y=0,color="r")
+for i in range(len(raiz)):
+  plt.plot(raiz[i],function(raiz[i]),marker="o",color="r")
+  
+  #Ejercicio6 cap3 
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import axes3d
+n = 25
+x = np.linspace(-4,4,n)
+y = np.linspace(-4,4,n)
+X,Y = np.meshgrid(x,y)
+
+
+
+def derivadaPx(x,y):    
+    a=np.array([x,y])
+    g=0
+    if np.linalg.norm(a)<=2:
+        g=0
+    else:
+        g=2+((8*(x-y)*(x+y))/(x**2 + y**2)**2)
+    return g
+
+
+def derivadaPy(x,y):    
+    a=np.array([x,y])
+    g=0
+    if np.linalg.norm(a)<=2:
+        g=0
+    else:
+        g=((16*x*y)/(x**2 + y**2)**2)
+    return g
+
+Ex = np.zeros((n,n))
+Ey = np.zeros((n,n))
+for i in range(n):
+    for j in range(n):
+        Ex[i,j] = derivadaPx(x[i],y[j])
+        Ey[i,j] = -derivadaPy(x[i],y[j])
+
+fig = plt.figure(figsize=(5,5))
+ax = fig.add_subplot(121)
+ax1 = fig.add_subplot(122)
+
+
+for i in range(n):
+    for j in range(n):
+        ax.quiver(x[i],y[j],Ex[i,j],Ey[i,j])
+        
+ax1.streamplot(X,Y,Ex.T,Ey.T,density=2)

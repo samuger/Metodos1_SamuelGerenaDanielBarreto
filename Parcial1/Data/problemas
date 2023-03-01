@@ -1,1 +1,52 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import math as math
+T=np.array([-3,2])
+R=np.array([2,-2])
+x=np.linspace(-10,10,100)
+def funnciontx(x,T,R,no=1,n1=1.33):
+  C=3*(10**8)
+  return (no*np.sqrt(((x-T[0])**2)+T[1]**2) + n1*np.sqrt(((x-R[0])**2)+R[1]**2))/C
+  
+y=funnciontx(x,T,R)
+print(y)
+plt.plot(x,y)
 
+def Derivative(f,x,h=1e-6):
+    return (f(x+h,T,R)-f(x-h,T,R))/(2*h)
+
+def Derivative2(f,x,h=1e-7):
+    return(f(x+h,T,R)-2*f(x,T,R)+f(x-h,T,R))/(h**2)
+
+def GetNewtonRaphson(f,df,ddf,xn,itmax = 1000, precision=1e-12):
+    error = 1
+    it = 0
+    while error > precision and it <= itmax:
+        try:
+            xn1 = xn - df(f,xn)/ddf(f,xn)
+            error = np.abs(df(f,xn)/ddf(f,xn))
+        except ZeroDivisionError:
+            print('Division por cero')
+        it += 1
+        xn = xn1
+    if it == itmax:
+        False
+    else:
+        return xn
+minimo=GetNewtonRaphson(funnciontx,Derivative,Derivative2,0)
+minimo
+
+def anguloalpha1(T,minimo):
+  return np.arcsin(T[1]/(np.sqrt(((minimo-T[0])**2)+T[1]**2)))
+a1= anguloalpha1(T,minimo)
+a1*180/np.pi
+
+def anguloalpha2(R,minimo):
+  return np.arcsin((R[0]-minimo)/(np.sqrt( ( (minimo-R[0])**2 )+R[1]**2)) )
+a2= anguloalpha2(R,minimo)
+a2*180/np.pi
+
+xf=np.sin(a1)/np.sin(a2)
+xd=1/1.33
+print(xf,xd)
+print("El valor difiere debido a las funciones de arcoseno de numpy")
